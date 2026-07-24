@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useScroll, useSpring } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -168,6 +168,15 @@ const Index = () => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+ /* SCROLL PROGRESSBAR */
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, {
+  stiffness: 120,
+  damping: 25,
+  mass: 0.3,
+  restDelta: 0.001,
+});
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
 
@@ -180,7 +189,7 @@ const Index = () => {
       >
             
         <div className="container mx-auto -mb-[84px]">
-          <div className="flex items-center justify-between rounded-2xl border border-border/100 bg-background/80 backdrop-blur-md px-4 py-3 shadow-md">
+          <div className="flex relative overflow-hidden items-center justify-between rounded-2xl border border-border/100 bg-background/80 backdrop-blur-md px-4 py-3 shadow-md">
           <div
             className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -325,6 +334,11 @@ const Index = () => {
               </>
             )}
           </div>
+          <motion.div
+          aria-hidden="true"
+          style={{ scaleX, transformOrigin: "left" }}
+          className="pointer-events-none absolute bottom-0 left-0 z-150 h-[3px] w-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(16,185,129,0.8),0_0_18px_rgba(34,211,238,0.55),0_0_28px_rgba(59,130,246,0.35)]"
+        />
           </div>
 
           <div className="md:hidden">
