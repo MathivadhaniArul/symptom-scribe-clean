@@ -35,6 +35,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError, showInfo, showWarning } from "@/lib/toast-helpers";
+import { shuffleArray } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -47,18 +48,6 @@ interface TrendQuestion {
   correctAnswer: number;
   options: number[];
 }
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array];
-
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  return arr;
-}
-
 const games = [
   {
     id: "memory",
