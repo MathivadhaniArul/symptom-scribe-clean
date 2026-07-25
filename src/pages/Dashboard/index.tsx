@@ -92,12 +92,18 @@ const RadialWellnessGauge = ({ score }: { score: number }) => {
   }
 
   return (
-    <div className="relative flex items-center justify-center w-20 h-20 select-none">
+    <div
+      className="relative flex items-center justify-center w-20 h-20 select-none"
+      role="img"
+      aria-label={`Wellness Score: ${score}%`}
+    >
+      <span className="sr-only">Wellness Score: {score}%</span>
       <div
         className={`absolute inset-1 rounded-full animate-pulse blur-md opacity-20 ${pulseColor}`}
+        aria-hidden="true"
       />
 
-      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 88 88">
+      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 88 88" aria-hidden="true">
         <defs>
           <linearGradient id="wellness-green" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stopColor="#10b981" />
@@ -137,7 +143,7 @@ const RadialWellnessGauge = ({ score }: { score: number }) => {
         />
       </svg>
 
-      <div className="absolute flex flex-col items-center justify-center text-center">
+      <div className="absolute flex flex-col items-center justify-center text-center" aria-hidden="true">
         <span className={`text-base font-black tracking-tight ${textColor}`}>{score}%</span>
         <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-wider leading-none">
           Well
