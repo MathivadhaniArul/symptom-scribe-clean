@@ -105,6 +105,12 @@ const metricTypes = [
     icon: Footprints,
     unit: "steps",
   },
+  {
+    value: "respiratory_rate",
+    label: "Respiratory Rate",
+    icon: Wind,
+    unit: "brpm",
+  },
 ];
 
 const MetricsTableSkeleton = () => (
