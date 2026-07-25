@@ -334,11 +334,36 @@ const Index = () => {
               </>
             )}
           </div>
-          <motion.div
-          aria-hidden="true"
-          style={{ scaleX, transformOrigin: "left" }}
-          className="pointer-events-none absolute bottom-0 left-0 z-150 h-[3px] w-full rounded-full bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500 shadow-[0_0_8px_rgba(16,185,129,0.8),0_0_18px_rgba(34,211,238,0.55),0_0_28px_rgba(59,130,246,0.35)]"
-        />
+          {/* Universal Theme-Compatible Scroll Progress Bar */}
+<div className="absolute bottom-0 left-0 w-full h-[3px] bg-foreground/10 overflow-visible">
+  <motion.div
+    style={{ scaleX }}
+    className="relative h-full w-full origin-left"
+  >
+    {/* Gradient fill using theme CSS variables */}
+    <div
+      className="h-full w-full"
+      style={{
+        background:
+          "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--accent, var(--primary))) 50%, hsl(var(--primary)) 100%)",
+        boxShadow:
+          "0 0 10px hsl(var(--primary) / 0.55), 0 0 20px hsl(var(--primary) / 0.3)",
+      }}
+    />
+    {/* Glowing leading-edge dot */}
+    <motion.div
+      className="absolute top-1/2 right-0 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
+      style={{
+        background:
+          "radial-gradient(circle, hsl(var(--primary-foreground, 0 0% 100%)) 0%, hsl(var(--primary)) 75%)",
+        boxShadow:
+          "0 0 8px 2px hsl(var(--primary) / 0.75), 0 0 16px 4px hsl(var(--primary) / 0.35)",
+      }}
+      animate={{ scale: [1, 1.25, 1] }}
+      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
+    />
+  </motion.div>
+</div>
           </div>
 
           <div className="md:hidden">
