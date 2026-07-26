@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { AnimatedThemeToggler } from "@/components/theme/components/AnimatedThemeToggler";
 import { BackToTop } from "@/components/navigation/BackToTop";
+import EmergencyQuickAccess from "@/pages/Health/EmergencyQuickAcess";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,6 +30,7 @@ const Layout = ({ children }: LayoutProps) => {
             {children}
           </main>
           <BackToTop />
+          <EmergencyQuickAccess />
         </div>
       </div>
     </SidebarProvider>
