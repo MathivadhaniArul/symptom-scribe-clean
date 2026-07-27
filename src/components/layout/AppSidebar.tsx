@@ -19,6 +19,7 @@ import { useToast } from "@/hooks/use-toast";
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -28,6 +29,7 @@ import {
   SidebarTrigger,
   useSidebar,
 } from "@/components/ui/sidebar";
+import EmergencyQuickAccess from "@/components/layout/EmergencyQuickAccess";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -172,6 +174,9 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
+      <SidebarFooter className="px-1 border-t border-sidebar-border/20 pt-2">
+        <EmergencyQuickAccess />
+      </SidebarFooter>
     </Sidebar>
   );
 }
