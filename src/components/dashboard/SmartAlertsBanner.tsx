@@ -31,7 +31,7 @@ export function SmartAlertsBanner({ userId, symptoms }: SmartAlertsBannerProps) 
       const activeAlerts = detectSmartAlerts(decryptedMetrics, symptoms);
       setAlerts(activeAlerts);
     } catch (err) {
-      console.error("Failed to calculate smart alerts:", err);
+      console.warn("Failed to calculate smart alerts:", err);
     }
   }, [userId, symptoms]);
 
