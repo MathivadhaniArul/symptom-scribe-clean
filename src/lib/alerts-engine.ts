@@ -29,7 +29,7 @@ export function dismissAlert(alertId: string) {
       localStorage.setItem(DISMISSED_ALERTS_KEY, JSON.stringify(dismissed));
     }
   } catch (err) {
-    console.error("Failed to dismiss alert:", err);
+    console.warn("Failed to dismiss alert:", err);
   }
 }
 
