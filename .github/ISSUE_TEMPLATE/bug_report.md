@@ -2,7 +2,7 @@
 name: 🐛 Bug Report
 about: Help us improve by reporting issues
 title: "[BUG] <Brief Description>"
-labels: bug, good first issue
+labels: bug, good first issue, GSSoC
 ---
 
 ## 🐛 Bug Description  
