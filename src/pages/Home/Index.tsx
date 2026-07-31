@@ -168,19 +168,27 @@ const Index = () => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
+  const { scrollYProgress } = useScroll();
+
+  const scaleX = useSpring(scrollYProgress, {
+    stiffness: 120,
+    damping: 25,
+    mass: 0.3,
+  });
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
 
       <header 
-        className={`sticky top-0 left-0 w-full px-6 py-0 z-50 ${
+        className={`sticky top-0 left-0 w-full px-6 py-0 z-50 bg-background border-b border-border ${
           isScrolled
-            ? "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm"
-            : "bg-background/0 border-transparent"
+            ? "bg-background border-b border-border "
+            : "bg-background"
         }`}
       >
             
         <div className="container mx-auto -mb-[84px]">
-          <div className="flex relative overflow-hidden items-center justify-between rounded-2xl border border-border/100 bg-background/80 backdrop-blur-md px-4 py-3 shadow-md">
+          <div className="flex relative overflow-hidden items-center justify-between rounded-2xl border border-border/100 bg-background px-4 py-3 shadow-md">
           <div
             className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -325,9 +333,11 @@ const Index = () => {
               </>
             )}
           </div>
-          <div className="absolute bottom-0 left-0 w-full h-[3px] bg-foreground/10">
-            <div className="h-full w-full bg-primary/40" />
-
+          <div className="absolute bottom-0 left-0 w-full h-[2px] bg-border overflow-hidden">
+            <motion.div
+              style={{ scaleX }}
+              className="h-full w-full origin-left bg-primary"
+            />
           </div>
           </div>
 
