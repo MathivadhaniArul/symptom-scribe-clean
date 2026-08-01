@@ -7,11 +7,15 @@ import {
   encryptText,
   decryptText,
   deriveKeyFromToken,
+  getP2PSigningKeys,
+  signPayload,
+  verifyPayload,
 } from "./encryption";
 
-describe("Encryption Key Persistence", () => {
+describe("Encryption Key Persistence & Security", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    localStorage.clear();
   });
 
   it("successfully encrypts and decrypts text using derived keys", async () => {
@@ -35,5 +39,37 @@ describe("Encryption Key Persistence", () => {
     expect(keys.searchKey).toBe(key);
     expect(getKey()).toBe(key);
     expect(getSearchKey()).toBe(key);
+  });
+
+  it("generates P2P signing keys without persisting private key material to localStorage", async () => {
+    // Pre-populate legacy storage entries to verify cleanup
+    localStorage.setItem("symptom_scribe_p2p_private_key", "fake-unencrypted-private-key");
+    localStorage.setItem("symptom_scribe_p2p_enc_private_key", "fake-encrypted-private-key");
+    localStorage.setItem("symptom_scribe_p2p_public_key", "fake-public-key");
+
+    const p2pKeys = await getP2PSigningKeys();
+    expect(p2pKeys.privateKey).toBeDefined();
+    expect(p2pKeys.publicKey).toBeDefined();
+
+    // Verify no private-key material is persisted to browser storage
+    expect(localStorage.getItem("symptom_scribe_p2p_private_key")).toBeNull();
+    expect(localStorage.getItem("symptom_scribe_p2p_enc_private_key")).toBeNull();
+    expect(localStorage.getItem("symptom_scribe_p2p_public_key")).toBeNull();
+  });
+
+  it("signs and verifies emergency mesh payloads using P2P keypair", async () => {
+    const p2pKeys = await getP2PSigningKeys();
+    const payload = "EMERGENCY_ALERT:SOS_LAT_37_LON_122";
+
+    const signature = await signPayload(payload, p2pKeys.privateKey);
+    expect(signature).toBeDefined();
+    expect(typeof signature).toBe("string");
+
+    const publicJwk = await crypto.subtle.exportKey("jwk", p2pKeys.publicKey);
+    const isValid = await verifyPayload(payload, signature, publicJwk);
+    expect(isValid).toBe(true);
+
+    const isTamperedValid = await verifyPayload(payload + "_TAMPERED", signature, publicJwk);
+    expect(isTamperedValid).toBe(false);
   });
 });
