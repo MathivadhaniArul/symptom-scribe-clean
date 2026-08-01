@@ -473,16 +473,16 @@ export async function decryptProfileArray(
 let cachedP2PKeys: { privateKey: CryptoKey; publicKey: CryptoKey } | null = null;
 
 export async function getP2PSigningKeys(): Promise<{ privateKey: CryptoKey; publicKey: CryptoKey }> {
-  if (cachedP2PKeys) {
-    return cachedP2PKeys;
-  }
-
   // Remove any legacy P2P private key storage from browser storage.
   // The private key is now kept only in memory for the current session.
   if (typeof localStorage !== "undefined") {
     localStorage.removeItem("symptom_scribe_p2p_private_key");
     localStorage.removeItem("symptom_scribe_p2p_enc_private_key");
     localStorage.removeItem("symptom_scribe_p2p_public_key");
+  }
+
+  if (cachedP2PKeys) {
+    return cachedP2PKeys;
   }
 
   // Generate a new ECDSA P-256 keypair for the current session.

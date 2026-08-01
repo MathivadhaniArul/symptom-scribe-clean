@@ -41,8 +41,20 @@ describe("Encryption Key Persistence & Security", () => {
     expect(getSearchKey()).toBe(key);
   });
 
-  it("generates P2P signing keys without persisting private key material to localStorage", async () => {
-    // Pre-populate legacy storage entries to verify cleanup
+  it("generates a P2P signing keypair when no key material exists", async () => {
+    const p2pKeys = await getP2PSigningKeys();
+
+    expect(p2pKeys.privateKey).toBeDefined();
+    expect(p2pKeys.publicKey).toBeDefined();
+
+    const privateJwk = await crypto.subtle.exportKey("jwk", p2pKeys.privateKey);
+    const publicJwk = await crypto.subtle.exportKey("jwk", p2pKeys.publicKey);
+
+    expect(privateJwk.kty).toBe("EC");
+    expect(publicJwk.kty).toBe("EC");
+  });
+
+  it("cleans up legacy P2P key entries and returns usable keys", async () => {
     localStorage.setItem("symptom_scribe_p2p_private_key", "fake-unencrypted-private-key");
     localStorage.setItem("symptom_scribe_p2p_enc_private_key", "fake-encrypted-private-key");
     localStorage.setItem("symptom_scribe_p2p_public_key", "fake-public-key");
@@ -51,10 +63,17 @@ describe("Encryption Key Persistence & Security", () => {
     expect(p2pKeys.privateKey).toBeDefined();
     expect(p2pKeys.publicKey).toBeDefined();
 
-    // Verify no private-key material is persisted to browser storage
     expect(localStorage.getItem("symptom_scribe_p2p_private_key")).toBeNull();
     expect(localStorage.getItem("symptom_scribe_p2p_enc_private_key")).toBeNull();
     expect(localStorage.getItem("symptom_scribe_p2p_public_key")).toBeNull();
+  });
+
+  it("reuses cached P2P signing keys on repeated calls", async () => {
+    const firstKeys = await getP2PSigningKeys();
+    const secondKeys = await getP2PSigningKeys();
+
+    expect(secondKeys.privateKey).toBe(firstKeys.privateKey);
+    expect(secondKeys.publicKey).toBe(firstKeys.publicKey);
   });
 
   it("signs and verifies emergency mesh payloads using P2P keypair", async () => {
