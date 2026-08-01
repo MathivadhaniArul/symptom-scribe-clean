@@ -168,23 +168,63 @@ const Dashboard = () => {
   const [decryptedSymptomsList, setDecryptedSymptomsList] = useState<string[]>([]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, []);
+    let isMounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
-  const fetchDashboardData = async () => {
-    try {
+    const initializeDashboardSession = async () => {
       const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
+
+      if (!isMounted) return;
+
+      if (sessionError) {
+        console.warn("Unable to resolve dashboard session:", sessionError);
         setLoading(false);
         return;
       }
-      setUserId(user.id);
+
+      if (session?.user?.id) {
+        await fetchDashboardData(session.user.id);
+        return;
+      }
+
+      setLoading(false);
+
+      const authResult = supabase.auth.onAuthStateChange((_event, nextSession) => {
+        if (!isMounted || !nextSession?.user?.id) return;
+        void fetchDashboardData(nextSession.user.id);
+      });
+
+      authSubscription = authResult?.data?.subscription ?? null;
+    };
+
+    void initializeDashboardSession();
+
+    return () => {
+      isMounted = false;
+      authSubscription?.unsubscribe();
+    };
+  }, []);
+
+  const fetchDashboardData = async (providedUserId?: string) => {
+    try {
+      setLoading(true);
+
+      const { data: sessionData } = await supabase.auth.getSession();
+      const activeUserId = providedUserId ?? sessionData.session?.user?.id;
+
+      if (!activeUserId) {
+        setLoading(false);
+        return;
+      }
+
+      setUserId(activeUserId);
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
-        .eq("user_id", user.id)
+        .eq("user_id", activeUserId)
         .maybeSingle();
 
       if (profile?.full_name) {
@@ -202,9 +242,7 @@ const Dashboard = () => {
         }
       }
 
-
-
-      const { data: rawSymptoms, source } = await fetchSymptomHistory(user.id);
+      const { data: rawSymptoms, source } = await fetchSymptomHistory(activeUserId);
 
       if (rawSymptoms && rawSymptoms.length > 0) {
         const key = await whenEncryptionReady();
