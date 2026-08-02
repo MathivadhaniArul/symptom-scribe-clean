@@ -471,36 +471,52 @@ export async function decryptProfileArray(
 
 // ─── P2P Emergency Mesh Signatures ──────────────────────────────────────────
 let cachedP2PKeys: { privateKey: CryptoKey; publicKey: CryptoKey } | null = null;
+let cachedP2PKeysPromise: Promise<{ privateKey: CryptoKey; publicKey: CryptoKey }> | null = null;
 
 export async function getP2PSigningKeys(): Promise<{ privateKey: CryptoKey; publicKey: CryptoKey }> {
   // Remove any legacy P2P private key storage from browser storage.
   // The private key is now kept only in memory for the current session.
+  // Public identity is session-scoped too, so it no longer persists across browser reloads.
   if (typeof localStorage !== "undefined") {
-    localStorage.removeItem("symptom_scribe_p2p_private_key");
-    localStorage.removeItem("symptom_scribe_p2p_enc_private_key");
-    localStorage.removeItem("symptom_scribe_p2p_public_key");
+    try {
+      localStorage.removeItem("symptom_scribe_p2p_private_key");
+      localStorage.removeItem("symptom_scribe_p2p_enc_private_key");
+      localStorage.removeItem("symptom_scribe_p2p_public_key");
+    } catch (err) {
+      console.warn("Failed to remove legacy P2P keys:", err);
+    }
   }
 
   if (cachedP2PKeys) {
     return cachedP2PKeys;
   }
 
-  // Generate a new ECDSA P-256 keypair for the current session.
-  const keyPair = await crypto.subtle.generateKey(
-    {
-      name: "ECDSA",
-      namedCurve: "P-256",
-    },
-    true,
-    ["sign", "verify"]
-  );
+  if (cachedP2PKeysPromise) {
+    return cachedP2PKeysPromise;
+  }
 
-  cachedP2PKeys = {
-    privateKey: keyPair.privateKey,
-    publicKey: keyPair.publicKey,
-  };
+  cachedP2PKeysPromise = crypto.subtle
+    .generateKey(
+      {
+        name: "ECDSA",
+        namedCurve: "P-256",
+      },
+      false,
+      ["sign", "verify"]
+    )
+    .then((keyPair) => {
+      cachedP2PKeys = {
+        privateKey: keyPair.privateKey,
+        publicKey: keyPair.publicKey,
+      };
 
-  return cachedP2PKeys;
+      return cachedP2PKeys;
+    })
+    .finally(() => {
+      cachedP2PKeysPromise = null;
+    });
+
+  return cachedP2PKeysPromise;
 }
 
 export async function signPayload(payload: string, privateKey: CryptoKey): Promise<string> {

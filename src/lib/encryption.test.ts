@@ -47,11 +47,17 @@ describe("Encryption Key Persistence & Security", () => {
     expect(p2pKeys.privateKey).toBeDefined();
     expect(p2pKeys.publicKey).toBeDefined();
 
-    const privateJwk = await crypto.subtle.exportKey("jwk", p2pKeys.privateKey);
     const publicJwk = await crypto.subtle.exportKey("jwk", p2pKeys.publicKey);
 
-    expect(privateJwk.kty).toBe("EC");
+    await expect(crypto.subtle.exportKey("jwk", p2pKeys.privateKey)).rejects.toThrow();
     expect(publicJwk.kty).toBe("EC");
+  });
+
+  it("shares a single in-flight P2P key generation across concurrent callers", async () => {
+    const [firstKeys, secondKeys] = await Promise.all([getP2PSigningKeys(), getP2PSigningKeys()]);
+
+    expect(firstKeys.privateKey).toBe(secondKeys.privateKey);
+    expect(firstKeys.publicKey).toBe(secondKeys.publicKey);
   });
 
   it("cleans up legacy P2P key entries and returns usable keys", async () => {

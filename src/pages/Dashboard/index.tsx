@@ -206,14 +206,17 @@ const Dashboard = () => {
   }, []);
 
   const fetchDashboardData = async (providedUserId?: string) => {
+    let activeUserId = providedUserId ?? null;
+
     try {
       setLoading(true);
 
-      const { data: sessionData } = await supabase.auth.getSession();
-      const activeUserId = providedUserId ?? sessionData.session?.user?.id;
+      if (!activeUserId) {
+        const { data: sessionData } = await supabase.auth.getSession();
+        activeUserId = sessionData.session?.user?.id ?? null;
+      }
 
       if (!activeUserId) {
-        setLoading(false);
         return;
       }
 
