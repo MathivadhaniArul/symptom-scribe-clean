@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { CheckCircle2, AlertTriangle, Smile } from "lucide-react";
 
 interface MoodLog {
   logged_at: string;
@@ -78,7 +77,7 @@ export default function MoodCalendarView({ moodLogs, onLogMood }: Props) {
 
         {alreadyLoggedToday ? (
           <div className="flex items-center gap-3 p-4 rounded-lg bg-primary/10 border border-primary/20">
-           <CheckCircle2 className="h-6 w-6 text-primary" />
+            <span className="text-2xl">✅</span>
             <div>
               <p className="text-sm font-medium text-primary">Mood logged for today!</p>
               <p className="text-xs text-muted-foreground">Come back tomorrow to log again.</p>
@@ -105,13 +104,13 @@ export default function MoodCalendarView({ moodLogs, onLogMood }: Props) {
 
             {logStatus === "error" && (
               <div className="flex items-center gap-2 p-3 rounded-lg bg-destructive/10 border border-destructive/20 text-sm text-destructive">
-                <AlertTriangle className="h-5 w-5" />
+                <span>⚠️</span>
                 <span>Could not save mood. Please try again.</span>
               </div>
             )}
             {logStatus === "success" && (
               <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/10 border border-primary/20 text-sm text-primary">
-                <CheckCircle2 className="h-5 w-5" />
+                <span>✅</span>
                 <span>Mood logged successfully!</span>
               </div>
             )}
@@ -182,10 +181,9 @@ export default function MoodCalendarView({ moodLogs, onLogMood }: Props) {
             ))}
           </div>
         ) : (
-          <div className="flex items-center justify-center gap-2 py-4 text-sm text-muted-foreground">
-  <Smile className="h-5 w-5" />
-  <span>No moods logged yet — start by logging today's mood above!</span>
-</div>
+          <div className="text-center py-4 text-sm text-muted-foreground">
+            No moods logged yet — start by logging today's mood above! 😊
+          </div>
         )}
       </div>
     </div>
