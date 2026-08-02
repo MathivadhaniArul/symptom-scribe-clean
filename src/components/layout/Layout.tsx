@@ -1,6 +1,5 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { AnimatedThemeToggler } from "@/components/theme/components/AnimatedThemeToggler";
 import { BackToTop } from "@/components/navigation/BackToTop";
 
 interface LayoutProps {
@@ -17,8 +16,6 @@ const Layout = ({ children }: LayoutProps) => {
             <div className="ml-auto flex items-center"></div>
 
             <div className="flex items-center gap-2">
-              <AnimatedThemeToggler />
-
               {/* ✅ Visible ONLY on mobile. Hidden on laptop/desktop. */}
               <div className="md:hidden">
                 <SidebarTrigger />
