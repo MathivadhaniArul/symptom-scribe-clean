@@ -1,4 +1,11 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  vi,
+  beforeEach,
+  afterEach,
+} from "vitest";
 import {
   setKeys,
   getKey,
@@ -17,6 +24,24 @@ import {
 describe("Encryption Key Persistence", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+  });
+
+  afterEach(() => {
+    // Seed/salt keys are namespaced per-user (SEED_KEY_PREFIX / SALT_KEY_PREFIX
+    // in encryption.ts), so we can't know the exact key name ahead of time.
+    // Sweep anything matching the real prefixes instead of guessing a fixed
+    // key name.
+    Object.keys(localStorage).forEach((key) => {
+      if (
+        key.startsWith("symptom_scribe_master_seed_") ||
+        key.startsWith("symptom_scribe_pbkdf2_salt_")
+      ) {
+        localStorage.removeItem(key);
+      }
+    });
+
+    localStorage.removeItem("symptom_scribe_p2p_private_key");
+    localStorage.removeItem("symptom_scribe_p2p_public_key");
   });
 
   it("successfully encrypts and decrypts text using derived keys", async () => {
