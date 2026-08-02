@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -79,10 +79,34 @@ export function AppSidebar() {
   const [themesOpen, setThemesOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const isCollapsed = state === "collapsed";
+  const themePopupRef = useRef<HTMLDivElement>(null);
+  const themeTriggerRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // ✅ Close the theme popup when clicking outside of it (but not when clicking the trigger, which toggles it itself)
+  useEffect(() => {
+    if (!themesOpen) return;
+
+    function handleClickOutside(event: MouseEvent) {
+      const target = event.target as Node;
+      if (
+        themePopupRef.current &&
+        !themePopupRef.current.contains(target) &&
+        themeTriggerRef.current &&
+        !themeTriggerRef.current.contains(target)
+      ) {
+        setThemesOpen(false);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [themesOpen]);
 
   const activeTheme = mounted ? (resolvedTheme ?? theme ?? "light") : "light";
 
@@ -168,6 +192,7 @@ export function AppSidebar() {
 
               <SidebarMenuItem>
                 <SidebarMenuButton
+                  ref={themeTriggerRef}
                   onClick={() => setThemesOpen((prev) => !prev)}
                   className="py-2 transition-all duration-300 ease-in-out hover:scale-[1.03] hover:-translate-y-1 hover:shadow-md"
                   aria-label="Themes"
@@ -216,7 +241,8 @@ export function AppSidebar() {
       </SidebarFooter>
       {!isCollapsed && themesOpen && (
         <div
-          className="fixed top-[5.5rem] z-50 hidden h-auto w-56 rounded-2xl border border-border/70 bg-popover/95 p-3 shadow-2xl backdrop-blur supports-[backdrop-filter]:bg-popover/80 md:block"
+          ref={themePopupRef}
+          className="fixed top-[5.5rem] z-50 hidden h-auto w-56 rounded-2xl border border-border bg-popover p-3 shadow-lg md:block"
           style={{ left: 272 }}
         >
           <div className="mb-3 px-1 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
