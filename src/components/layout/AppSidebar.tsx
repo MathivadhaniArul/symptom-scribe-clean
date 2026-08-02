@@ -18,6 +18,7 @@ import {
 
 import { NavLink, useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useTheme } from "next-themes";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -239,38 +240,42 @@ export function AppSidebar() {
       <SidebarFooter className="px-1 border-t border-sidebar-border/20 pt-2">
         <EmergencyQuickAccess />
       </SidebarFooter>
-      {!isCollapsed && themesOpen && (
-        <div
-          ref={themePopupRef}
-          className="fixed top-[5.5rem] z-50 hidden h-auto w-56 rounded-2xl border border-border bg-popover p-3 shadow-lg md:block"
-          style={{ left: 272 }}
-        >
-          <div className="mb-3 px-1 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
-            Themes
-          </div>
-          <div className="flex flex-col gap-1.5">
-            {themeOptions.map((option) => {
-              const isActive = activeTheme === option.value;
-              return (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setTheme(option.value)}
-                  className={`flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors ${
-                    isActive
-                      ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                      : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                  }`}
-                  aria-label={option.label}
-                >
-                  <span>{option.label}</span>
-                  {isActive ? <Check className="h-4 w-4" /> : null}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
+      {!isCollapsed &&
+        themesOpen &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            ref={themePopupRef}
+            className="fixed top-[5.5rem] z-[999] hidden h-auto w-56 rounded-2xl border border-border bg-popover p-3 shadow-lg md:block"
+            style={{ left: 272 }}
+          >
+            <div className="mb-3 px-1 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+              Themes
+            </div>
+            <div className="flex flex-col gap-1.5">
+              {themeOptions.map((option) => {
+                const isActive = activeTheme === option.value;
+                return (
+                  <button
+                    key={option.value}
+                    type="button"
+                    onClick={() => setTheme(option.value)}
+                    className={`flex items-center justify-between rounded-xl px-3 py-2 text-left text-sm transition-colors ${
+                      isActive
+                        ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
+                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                    }`}
+                    aria-label={option.label}
+                  >
+                    <span>{option.label}</span>
+                    {isActive ? <Check className="h-4 w-4" /> : null}
+                  </button>
+                );
+              })}
+            </div>
+          </div>,
+          document.body
+        )}
     </Sidebar>
   );
 }
