@@ -219,7 +219,7 @@ export default function HealthTrendsChart({ userId }: HealthTrendsChartProps) {
                   />
                 )}
 
-                {/* Secondary Right Y-Axis for daily steps */}
+                {/* Secondary Right Y-Axis for daily steps — shown only for steps filter or all metrics */}
                 {(activeFilter === "all" || activeFilter === "steps") && (
                   <YAxis
                     yAxisId="right"

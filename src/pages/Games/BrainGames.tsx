@@ -35,6 +35,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { showSuccess, showError, showInfo, showWarning } from "@/lib/toast-helpers";
+import { shuffleArray } from "@/lib/utils";
 import confetti from "canvas-confetti";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -47,18 +48,6 @@ interface TrendQuestion {
   correctAnswer: number;
   options: number[];
 }
-function shuffleArray<T>(array: T[]): T[] {
-  const arr = [...array];
-
-  for (let i = arr.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-
-    [arr[i], arr[j]] = [arr[j], arr[i]];
-  }
-
-  return arr;
-}
-
 const games = [
   {
     id: "memory",
@@ -908,7 +897,32 @@ const BrainGames = () => {
   const prevLevelRef = useRef(level);
 
   const [statsLoaded, setStatsLoaded] = useState(false);
-
+  const brainBadges = [
+    {
+      title: "Memory Boost",
+      icon: Brain,
+      color: "from-violet-500 to-purple-600",
+      bg: "bg-violet-100/70 dark:bg-violet-900/30",
+    },
+    {
+      title: "Focus Improve",
+      icon: Target,
+      color: "from-emerald-500 to-green-600",
+      bg: "bg-emerald-100/70 dark:bg-emerald-900/30",
+    },
+    {
+      title: "Speed Enhance",
+      icon: Zap,
+      color: "from-amber-500 to-orange-500",
+      bg: "bg-amber-100/70 dark:bg-amber-900/30",
+    },
+    {
+      title: "Logic Sharpen",
+      icon: Puzzle,
+      color: "from-sky-500 to-blue-600",
+      bg: "bg-sky-100/70 dark:bg-sky-900/30",
+    },
+  ];
   // Fetch stats on mount
   useEffect(() => {
     const fetchUserStats = async () => {
@@ -1014,7 +1028,6 @@ const BrainGames = () => {
   useEffect(() => {
     if (level > prevLevelRef.current) {
       showSuccess("🎉 LEVEL UP! 🎉", `You reached Level ${level}!`);
-      triggerConfetti();
     }
     prevLevelRef.current = level;
   }, [level]);
@@ -2248,9 +2261,10 @@ const BrainGames = () => {
   // ─── Main render ───────────────────────────────────────────────────────────
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-8 space-y-12">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div className="space-y-2">
+    <div className="max-w-6xl mx-auto px-4 py-8 space-y-12 overflow-x-hidden">
+      <header className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-[1.8fr_1fr] gap-8 items-start">
+        <div className="space-y-4 max-w-3xl">
           <motion.div
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
@@ -2281,6 +2295,49 @@ const BrainGames = () => {
             Elevate your cognitive performance through specialized games designed to enhance memory,
             calculation speed, and logical reasoning.
           </motion.p>
+        
+        <div className="mt-6 flex items-center gap-3 pb-1">
+          {brainBadges.map((badge, index) => {
+            const Icon = badge.icon;
+
+            return (
+              <motion.div
+                key={badge.title}
+                animate={{
+                  y: [0, -6, 0],
+                }}
+                transition={{
+                  duration: 2.8,
+                  delay: index * 0.2,
+                  repeat: Infinity,
+                  repeatType: "mirror",
+                  ease: "easeInOut",
+                }}
+                whileHover={{
+                  scale: 1.06,
+                  y: -8,
+                }}
+                whileTap={{
+                  scale: 0.96,
+                }}
+              className="group flex items-center gap-3 w-[185px] h-[62px] px-4 rounded-2xl border border-border/50 bg-card/70 backdrop-blur-xl shadow-sm transition-all duration-300 hover:shadow-xl hover:scale-[1.04] hover:-translate-y-1 hover:border-primary/40 cursor-default ">
+              <div className={` flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-br ${badge.color} shadow-md transition-all duration-300 group-hover:rotate-6 group-hover:scale-110`} >
+          <Icon className="h-5 w-5 text-white" />
+        </div>
+
+        <div className="leading-tight">
+          <p className="text-[15px] font-semibold text-foreground">
+            {badge.title.split(" ")[0]}
+          </p>
+
+          <p className="text-xs text-muted-foreground">
+            {badge.title.split(" ").slice(1).join(" ")}
+          </p>
+        </div>
+              </motion.div>
+            );
+          })}
+        </div>
         </div>
 
         <motion.div
@@ -2294,8 +2351,9 @@ const BrainGames = () => {
             duration: 0.5, 
             ease: "easeOut" 
           }}
-          className="bg-card/50 backdrop-blur-xl border border-border/50 p-4 sm:p-6 rounded-[2.5rem] shadow-xl flex flex-col gap-4 px-6 sm:px-8 w-full sm:w-auto min-w-[280px] sm:min-w-[320px]"
+          className="bg-card/50 backdrop-blur-xl border border-border/50 p-4 sm:p-6 rounded-[2.5rem] shadow-xl flex flex-col gap-4 px-6 sm:px-8 w-full max-w-[360px] justify-self-end"
         >
+          
           <div className="flex flex-wrap items-center gap-4 sm:gap-8 justify-center">
             <div className="flex items-center gap-4">
               <div className="text-center">
@@ -2312,6 +2370,7 @@ const BrainGames = () => {
                 </p>
               </div>
             </div>
+            
 
             <div className="w-px h-8 sm:h-10 bg-border/50 hidden sm:block" />
 
@@ -2363,7 +2422,9 @@ const BrainGames = () => {
               {XP_PER_LEVEL - (xp % XP_PER_LEVEL)} XP remaining to reach Level {level + 1}
             </p>
           </div>
+          
         </motion.div>
+      </div>
       </header>
 
       <AnimatePresence mode="wait">

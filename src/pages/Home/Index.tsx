@@ -168,28 +168,27 @@ const Index = () => {
   return () => window.removeEventListener("scroll", handleScroll);
 }, []);
 
- /* SCROLL PROGRESSBAR */
   const { scrollYProgress } = useScroll();
+
   const scaleX = useSpring(scrollYProgress, {
-  stiffness: 120,
-  damping: 25,
-  mass: 0.3,
-  restDelta: 0.001,
-});
+    stiffness: 120,
+    damping: 25,
+    mass: 0.3,
+  });
 
   return (
     <div className="min-h-screen bg-background flex flex-col">
 
       <header 
-        className={`sticky top-0 left-0 w-full px-6 py-0 z-50 ${
+        className={`sticky top-0 left-0 w-full px-6 py-0 z-50 bg-background border-b border-border ${
           isScrolled
-            ? "bg-background/95 backdrop-blur-md border-b border-border/50 shadow-sm"
-            : "bg-background/0 border-transparent"
+            ? "bg-background border-b border-border "
+            : "bg-background"
         }`}
       >
             
         <div className="container mx-auto -mb-[84px]">
-          <div className="flex relative overflow-hidden items-center justify-between rounded-2xl border border-border/100 bg-background/80 backdrop-blur-md px-4 py-3 shadow-md">
+          <div className="flex relative overflow-hidden items-center justify-between rounded-2xl border border-border/100 bg-background px-4 py-3 shadow-md">
           <div
             className="flex items-center gap-3 cursor-pointer transition-opacity hover:opacity-80"
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
@@ -334,36 +333,12 @@ const Index = () => {
               </>
             )}
           </div>
-          {/* Universal Theme-Compatible Scroll Progress Bar */}
-<div className="absolute bottom-0 left-0 w-full h-[3px] bg-foreground/10 overflow-visible">
-  <motion.div
-    style={{ scaleX }}
-    className="relative h-full w-full origin-left"
-  >
-    {/* Gradient fill using theme CSS variables */}
-    <div
-      className="h-full w-full"
-      style={{
-        background:
-          "linear-gradient(90deg, hsl(var(--primary)) 0%, hsl(var(--accent, var(--primary))) 50%, hsl(var(--primary)) 100%)",
-        boxShadow:
-          "0 0 10px hsl(var(--primary) / 0.55), 0 0 20px hsl(var(--primary) / 0.3)",
-      }}
-    />
-    {/* Glowing leading-edge dot */}
-    <motion.div
-      className="absolute top-1/2 right-0 -translate-y-1/2 w-2.5 h-2.5 rounded-full"
-      style={{
-        background:
-          "radial-gradient(circle, hsl(var(--primary-foreground, 0 0% 100%)) 0%, hsl(var(--primary)) 75%)",
-        boxShadow:
-          "0 0 8px 2px hsl(var(--primary) / 0.75), 0 0 16px 4px hsl(var(--primary) / 0.35)",
-      }}
-      animate={{ scale: [1, 1.25, 1] }}
-      transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-    />
-  </motion.div>
-</div>
+          <div className="absolute bottom-0 left-0 w-full h-[2px] bg-border overflow-hidden">
+            <motion.div
+              style={{ scaleX }}
+              className="h-full w-full origin-left bg-primary"
+            />
+          </div>
           </div>
 
           <div className="md:hidden">
@@ -458,7 +433,8 @@ const Index = () => {
       </section>
 
       {/* How It Works Section */}
-      <section id="how-it-works" className="bg-muted pt-20 px-3 overflow-hidden">
+      <section id="how-it-works" className="relative bg-muted py-28 px-3 overflow-visible">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-primary/5 pointer-events-none" />
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -466,7 +442,7 @@ const Index = () => {
           transition={{ duration: 0.5 }}
           className="max-w-6xl mx-auto"
         >
-          <div className="text-center mb-12">
+          <div className="text-center mb-20">
             <h2 className="text-3xl md:text-4xl font-bold mb-4">How It Works</h2>
             <div className="flex items-center justify-center gap-3 mb-4">
               <div className="w-10 h-0.5 rounded-full bg-primary" />
@@ -478,43 +454,80 @@ const Index = () => {
             </p>
           </div>
 
-          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="relative grid grid-cols-1 md:grid-cols-3 gap-12 overflow-visible">
             {howItWorksSteps.map((step, index) => {
               const Icon = step.icon;
 
               return (
-                <motion.div
-                  key={step.num}
-                  initial={{ opacity: 0, y: 24 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-30px" }}
-                  transition={{ duration: 0.45, delay: index * 0.1 }}
-                  className="relative"
-                >
+                   <motion.div
+                    key={step.num}
+                    initial={{ opacity: 0, y: 40 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: "-30px" }}
+                    animate={{
+                      y: [0, -10, 0],
+                    }}
+                    transition={{
+                      opacity: { duration: 0.6, delay: index * 0.2 },
+                      y: {
+                        duration: 3,
+                        repeat: Infinity,
+                        ease: "easeInOut",
+                        delay: index * 0.3,
+                      },
+                    }}
+                    className="relative"
+                  >
                   {index !== howItWorksSteps.length - 1 && (
-                    <div className="hidden md:block absolute top-[148px] left-[calc(100%-10px)] w-20 lg:w-24 h-12 z-20 pointer-events-none">
-                      <svg className="w-full h-full overflow-visible" viewBox="0 0 100 48" fill="none" aria-hidden="true">
-                        <path
-                          d="M8 35 C28 6, 72 6, 92 35"
-                          stroke="hsl(var(--primary))"
-                          strokeWidth="2"
-                          strokeLinecap="round"
-                          strokeDasharray="5 7"
-                        />
-                        <circle cx="8" cy="35" r="5.5" fill="hsl(var(--primary))" />
-                        <circle cx="92" cy="35" r="5.5" fill="hsl(var(--primary))" />
-                      </svg>
-                    </div>
-                  )}
+                    <div className="hidden md:block absolute top-[150px] left-[calc(100%-9px)] w-24 h-16 z-20 overflow-visible pointer-events-none">
+                     <svg className="w-full h-full overflow-visible"
+                        viewBox="0 0 130 90"
+                        fill="none">
 
-                  <div className="relative bg-card rounded-xl border border-border shadow-sm px-4 pt-16 pb-10 min-h-[360px] text-center transition-all duration-300 hover:-translate-y-1 hover:shadow-md">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-full bg-primary text-primary-foreground text-2xl font-bold flex items-center justify-center shadow-lg">
-                      {step.num}
-                    </div>
+                     <path
+                        id={`flowPath-${index}`}
+                        d="M8 30 C22 8 58 8 74 30"
+                        stroke="hsl(var(--primary))"
+                        strokeWidth="3"
+                        strokeLinecap="round"
+                        strokeDasharray="8 8"
+                        fill="none"
+                     />
+                    <motion.circle
+                        r="4"
+                        fill="white">
+                     <animateMotion
+                          dur="2s"
+                          repeatCount="indefinite"
+                          path="M8 30 C22 8 58 8 74 30"/>
+                    </motion.circle>
 
-                    <div className="w-24 h-24 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
-                      <Icon className="w-10 h-10 text-primary" strokeWidth={2.2} />
-                    </div>
+                  <circle cx="8" cy="30" r="5" fill="hsl(var(--primary))" />
+                  <circle cx="74" cy="30" r="5" fill="hsl(var(--primary))" />
+                </svg>
+              </div>
+            )}
+
+              <div className="group relative bg-card/90 backdrop-blur-xl rounded-3xl border border-border/60 shadow-lg px-4 pt-16 pb-10 min-h-[360px] text-center transition-all duration-500 hover:-translate-y-2 hover:scale-[1.015] hover:border-primary/40 hover:shadow-xl hover:shadow-primary/20 hover:ring-1 hover:ring-primary/20 hover:shadow-[0_25px_70px_rgba(34,211,238,.25)]">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-primary/5 via-transparent to-primary/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
+                    
+            <div className="absolute left-1/2 -translate-x-1/2 -top-9 z-30 w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xl font-bold shadow-xl border-4 border-background shadow-2xl ring-2 ring-primary/30">
+              {step.num}
+            </div>
+
+           <motion.div
+             animate={{
+              rotate: [0, 4, -4, 0],
+              scale: [1, 1.05, 1],
+             }}
+             transition={{
+              duration: 4,
+              repeat: Infinity,
+              ease: "easeInOut",
+             }}
+             className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-6">
+              <Icon className="w-10 h-10 text-primary" strokeWidth={2.2} />
+           </motion.div>
 
                     <h3 className="text-xl font-bold leading-tight mb-4 min-h-[56px] flex items-center justify-center">
                       {step.title}
