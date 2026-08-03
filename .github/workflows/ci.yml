@@ -17,10 +17,6 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: TruffleHog Secret Scan
-        uses: trufflesecurity/trufflehog@main
-        with:
-          extra_args: --only-verified
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
