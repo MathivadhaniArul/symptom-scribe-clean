@@ -224,21 +224,18 @@ export async function decryptText(encryptedText: string, key: CryptoKey): Promis
   const [ivHex, ciphertextHex] = parts;
   const iv = hexToUint8Array(ivHex);
   const ciphertext = hexToUint8Array(ciphertextHex);
-  try {
-    const decryptedBuffer = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: iv,
-      },
-      key,
-      ciphertext
-    );
 
-    const decoder = new TextDecoder();
-    return decoder.decode(decryptedBuffer);
-  } catch (err) {
-    throw new Error("Unable to decrypt data");
-  }
+  const decryptedBuffer = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv: iv,
+    },
+    key,
+    ciphertext
+  );
+
+  const decoder = new TextDecoder();
+  return decoder.decode(decryptedBuffer);
 }
 
 // Callbacks registered by offline-db
