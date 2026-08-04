@@ -360,7 +360,30 @@ async function handleSessionChange(session: Session) {
     console.error("Failed to sync encryption salt from profiles:", saltErr);
   }
 
-  // Derive persistent master key from stored seed (or stable userId fallback)
+  // Derive persistent master key from stored seed, falling back to the
+  // user's id when no password-derived seed has been persisted yet (e.g.
+  // first session after signup, an OAuth/social login with no password to
+  // derive a seed from, or a pre-existing account created before
+  // password-based seed derivation was introduced). Because
+  // deriveKeyFromToken() salts with a per-user random salt regardless of
+  // the token supplied, using userId here still produces a key that is
+  // unique to the user and stable across sessions — it's a deterministic
+  // bootstrap value, not a security downgrade.
+  //
+  // Do not remove this fallback without first confirming no existing users
+  // depend on it, e.g. via:
+  //   git log -S "storedSeed || userId" -- src/lib/encryption.ts
+  // Removing it would make any already-encrypted data undecryptable for
+  // accounts that never went through setupKeysFromPassword().
+  //
+  // Security note:
+  // The master seed is stored in localStorage to allow encrypted data to
+  // persist across browser sessions. Because localStorage is readable by
+  // JavaScript running on the page, an XSS vulnerability could expose this
+  // seed. The application therefore relies on preventing XSS through proper
+  // input sanitization, CSP, and secure coding practices. Hardening options
+  // (e.g. encrypting the seed at rest or using non-extractable keys) are
+  // considered future improvements.
   const storedSeed = localStorage.getItem(SEED_KEY_PREFIX + userId);
   const masterSeed = storedSeed || userId;
 
@@ -569,3 +592,16 @@ export async function verifyPayload(
     return false;
   }
 }
+
+/**
+ * Security Note:
+ *
+ * Encryption seeds and P2P keys are stored in localStorage to
+ * persist client-side encrypted data across browser sessions.
+ *
+ * Because localStorage is accessible to JavaScript, these values
+ * could be exposed if an XSS vulnerability exists.
+ *
+ * Future improvements may encrypt these values at rest or use
+ * non-extractable Web Crypto keys where possible.
+ */
