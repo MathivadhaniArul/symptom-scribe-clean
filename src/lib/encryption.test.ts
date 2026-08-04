@@ -36,4 +36,14 @@ describe("Encryption Key Persistence", () => {
     expect(getKey()).toBe(key);
     expect(getSearchKey()).toBe(key);
   });
+
+  it("throws a normalized error message for invalid ciphertext", async () => {
+    const key = await deriveKeyFromToken("stable-master-seed", "user-123");
+    // correctly formatted but invalid ciphertext (valid hex parts)
+    const ivHex = "00".repeat(12); // 12-byte IV
+    const ciphertextHex = "00".repeat(16); // some ciphertext bytes
+    const bad = `${ivHex}:${ciphertextHex}`;
+
+    await expect(decryptText(bad, key)).rejects.toThrow("Unable to decrypt data");
+  });
 });
