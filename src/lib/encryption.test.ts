@@ -63,7 +63,7 @@ describe("Regression Tests - Persisted Encryption State", () => {
   it("handles missing persisted seed gracefully", async () => {
     localStorage.removeItem(SEED_KEY);
 
-    const key = await deriveKeyFromToken(USER_ID, USER_ID);
+    const key = await deriveKeyFromToken(MASTER_SEED, USER_ID);
 
     expect(key).toBeDefined();
   });
