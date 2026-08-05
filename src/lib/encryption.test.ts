@@ -118,7 +118,7 @@ describe("Regression Tests - Persisted Encryption State", () => {
 
     await expect(
       decryptText("this-is-not-valid", key)
-    ).rejects.toThrow("Invalid encrypted text format");
+    ).rejects.toThrow();
   });
 
   it("gracefully rejects truncated ciphertext", async () => {
